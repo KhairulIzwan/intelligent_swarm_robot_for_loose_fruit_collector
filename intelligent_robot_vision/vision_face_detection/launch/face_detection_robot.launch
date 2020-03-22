@@ -1,0 +1,13 @@
+<launch>
+
+	<!-- Execute tank_face_detection node file -->
+	<!-- Located at package: tank_camera -->
+	<!-- Named as: face_detector (name as you wish; meaningful) -->
+	<!-- Node filename: face_detection.py -->
+	<node	pkg="vision_face_detection" 
+		name="camera_face_detection" 
+		type="face_detection.py" 
+		output="screen">
+	</node>
+
+</launch>

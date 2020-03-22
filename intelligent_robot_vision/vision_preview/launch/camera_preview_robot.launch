@@ -1,0 +1,9 @@
+<launch>
+
+	<!-- ROS node (cv_camera_node) -->
+	<include file="$(find vision_preview)/launch/camera_robot.launch" />
+
+	<!-- ROS nodes (preview) -->
+	<include file="$(find vision_preview)/launch/preview_robot.launch" />
+
+</launch>	

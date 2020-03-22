@@ -1,0 +1,10 @@
+<launch>
+
+	<!-- ROS nodes (teleop_key) -->
+	<node	pkg="platform_navigation" 
+		name="teleop_key_control" 
+		type="teleop_key.py" 
+		output="screen">
+	</node>
+
+</launch>

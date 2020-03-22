@@ -1,0 +1,10 @@
+<launch>
+
+	<!-- ROS nodes (preview) -->
+	<node	pkg="vision_preview" 
+		name="camera_preview" 
+		type="preview.py" 
+		output="screen">
+	</node>
+
+</launch>

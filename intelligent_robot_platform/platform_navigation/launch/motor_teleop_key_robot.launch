@@ -1,0 +1,9 @@
+<launch>
+
+	<!-- Arduino (rosserial_arduino) -->
+	<include file="$(find platform_navigation)/launch/motor_robot.launch" />
+
+	<!-- ROS nodes (teleop_key) -->
+	<include file="$(find platform_navigation)/launch/teleop_key_robot.launch" />
+
+</launch>

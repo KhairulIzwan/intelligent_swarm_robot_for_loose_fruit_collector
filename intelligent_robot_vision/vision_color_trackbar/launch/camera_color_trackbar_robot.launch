@@ -1,0 +1,9 @@
+<launch>
+
+	<!-- ROS node (cv_camera_node) -->
+	<include file="$(find vision_color_trackbar)/launch/camera_robot.launch" />
+
+	<!-- ROS node (color_trackbar) -->
+	<include file="$(find vision_color_trackbar)/launch/color_range_trackbar.launch" />
+
+</launch>

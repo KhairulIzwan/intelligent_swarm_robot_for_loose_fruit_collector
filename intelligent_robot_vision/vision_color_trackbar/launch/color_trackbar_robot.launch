@@ -1,0 +1,10 @@
+<launch>
+
+	<!-- ROS nodes (color_trackbar) -->
+	<node	pkg="vision_color_trackbar" 
+		name="camera_color_trackbar" 
+		type="color_range_trackbar.py" 
+		output="screen">
+	</node>
+
+</launch>

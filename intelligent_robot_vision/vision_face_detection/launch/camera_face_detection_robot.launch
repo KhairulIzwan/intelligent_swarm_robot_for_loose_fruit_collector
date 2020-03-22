@@ -1,0 +1,9 @@
+<launch>
+
+	<!-- ROS node (cv_camera_node) -->
+	<include file="$(find vision_face_detection)/launch/camera_robot.launch" />
+
+	<!-- ROS nodes (face_detection) -->
+	<include file="$(find vision_face_detection)/launch/face_detection_robot.launch" />
+
+</launch>
