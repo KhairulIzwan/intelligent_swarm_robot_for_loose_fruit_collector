@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-#Title: Python Subscriber for Tank Navigation
-#Author: Khairul Izwan Bin Kamsani - [23-01-2020]
-#Description: Tank Navigation Subcriber Nodes (Python)
+#Title: Face detection --> ROI --> Center of ROI
+#Author: Khairul Izwan Bin Kamsani - [23-03-2020]
+#Description: Using haarcascadefrontalface to detect a face(s). Get and draw the bounding box (ROI). Calculate the center of ROI (COI). Calculate the center of ROI offset from center of image. Publish the calculated COI.
 
 #remove or add the library/libraries for ROS
 import rospy
@@ -17,6 +17,10 @@ from sensor_msgs.msg import Image, CameraInfo
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import RegionOfInterest
 
+"""Add changes here!"""
+#from geometry_msgs.msg import Twist
+from vision_face_detection.msg import CenterOfRegionOffset
+
 class TankFaceDetector:
 
 	def __init__(self):
@@ -29,14 +33,22 @@ class TankFaceDetector:
 		self.bridge = CvBridge()
 
 		# Create the Subsciber (image_raw)
-		self.sub = rospy.Subscriber("/cv_camera/image_raw", Image, self.callback_image)
+		self.sub_image_raw = rospy.Subscriber("/cv_camera/image_raw", Image, self.callback_image)
 		
 		# Create the Subsciber (camera_info)
-		self.sub = rospy.Subscriber("/cv_camera/camera_info", CameraInfo, self.callback_camerainfo)
+		self.sub_camera_info = rospy.Subscriber("/cv_camera/camera_info", CameraInfo, self.callback_camerainfo)
 
 		"""Add changes here!"""
 		## Create the Publisher (roi)		
-		#self.pub = rospy.Publisher("/roi", RegionOfInterest, queue_size=10)
+		#self.pub_roi = rospy.Publisher("/roi", RegionOfInterest, queue_size=10)
+
+		"""Add changes here!"""
+		## Create the Publisher (cmd_vel)
+		#self.pub_twist = rospy.Publisher("/cmd_vel", Twist, queue_size=10)
+
+		"""Add changes here!"""
+		## Create the Publisher (center_offset)
+		self.pub_centerofregionoffset = rospy.Publisher("/center_offset", CenterOfRegionOffset, queue_size=10)
 
 		# Path to input Haar cascade for face detection
 		self.faceCascade = cv2.CascadeClassifier("/home/khairulizwan/catkin_ws/src/intelligent_swarm_robot_for_loose_fruit_collector/intelligent_robot_vision/vision_face_detection/library/haarcascade_frontalface_default.xml")
@@ -53,30 +65,8 @@ class TankFaceDetector:
 		# Detect face
 		self.track()
 
-		"""Add changes here!"""
 		# loop over the face bounding boxes and draw them
 		for self.rect in self.rects:
-
-			"""Add changes here!"""
-			# Center of image
-			self.center_W = self.W // 2
-			self.center_H = self.H // 2
-			self.center_x_roi = (self.fW // 2) + self.fX
-			self.center_y_roi = (self.fH // 2) + self.fY
-			self.distance_x_center = self.center_W - self.center_x_roi
-
-			rospy.loginfo('[INFO] Distance from center: %d' % self.distance_x_center)
-
-			if self.distance_x_center > 0:
-				# Blue color in BGR 
-				color_roi = (255, 0, 0)
-			elif self.distance_x_center < 0:
-				# Red color in BGR 
-				color_roi = (0, 0, 255)
-			else:
-				# White color in BGR 
-				color_roi = (255, 255, 255)
-
 			cv2.rectangle(self.frameClone, (self.rect[0], self.rect[1]), (self.rect[2], self.rect[3]), color_roi, 2)
 
 			#self.roi=RegionOfInterest()
@@ -87,8 +77,73 @@ class TankFaceDetector:
 
 			#self.pub.publish(self.roi)
 
+			"""Add changes here!"""
+			# Center of image
+			self.center_W = self.W // 2
+			self.center_H = self.H // 2
+			self.center_x_roi = (self.fW // 2) + self.fX
+			self.center_y_roi = (self.fH // 2) + self.fY
+
+			self.distance_x_center = self.center_x_roi - self.center_W
+			self.distance_y_center = self.center_H - self.center_y_roi
+
+			#rospy.loginfo('[INFO] Distance from center [X]: %d' % self.distance_x_center)
+			#rospy.loginfo('[INFO] Distance from center [Y]: %d' % self.distance_y_center)
+
+			self.coi=CenterOfRegionOffset()
+			self.coi.x_offset=self.distance_x_center
+			self.coi.y_offset=self.distance_y_center
+
+			self.pub_centerofregionoffset.publish(self.coi)
+
+			if self.distance_x_center > 0:
+				# Blue color in BGR 
+				color_roi = (255, 0, 0)
+
+				#twist = Twist()
+
+				#twist.linear.x = 0.15; 
+				#twist.linear.y = 0.0; 
+				#twist.linear.z = 0.0
+				#twist.angular.x = 0.0; 
+				#twist.angular.y = 0.0; 
+				#twist.angular.z = 0.0
+
+				#self.pub_twist.publish(twist)
+
+			elif self.distance_x_center < 0:
+				# Red color in BGR 
+				color_roi = (0, 0, 255)
+
+				#twist = Twist()
+
+				#twist.linear.x = -0.15; 
+				#twist.linear.y = 0.0; 
+				#twist.linear.z = 0.0
+				#twist.angular.x = 0.0; 
+				#twist.angular.y = 0.0; 
+				#twist.angular.z = 0.0
+
+				#self.pub_twist.publish(twist)
+
+			else:
+				# White color in BGR 
+				color_roi = (255, 255, 255)
+
+				#twist = Twist()
+
+				#twist.linear.x = 0.0; 
+				#twist.linear.y = 0.0; 
+				#twist.linear.z = 0.0
+				#twist.angular.x = 0.0; 
+				#twist.angular.y = 0.0; 
+				#twist.angular.z = 0.0
+
+				#self.pub_twist.publish(twist)
+
 			cv2.circle(self.frameClone, (self.center_x_roi, self.center_y_roi), 1, (0, 0, 255), 2) 
 
+		"""Add changes here!"""
 		# Start coordinate, here (0, 0) 
 		# represents the top left corner of image 
 		start_point = (self.center_W, 0) 
@@ -138,6 +193,18 @@ class TankFaceDetector:
 			rospy.loginfo("[INFO] Tank Face Detector [OFFLINE]")
 		finally:
 			cv2.destroyAllWindows()
+
+			"""Add changes here!"""
+			#twist = Twist()
+
+			#twist.linear.x = 0.0; 
+			#twist.linear.y = 0.0; 
+			#twist.linear.z = 0.0
+			#twist.angular.x = 0.0; 
+			#twist.angular.y = 0.0; 
+			#twist.angular.z = 0.0
+
+			#self.pub_twist.publish(twist)
 
 def main(args):
 	tfd = TankFaceDetector()

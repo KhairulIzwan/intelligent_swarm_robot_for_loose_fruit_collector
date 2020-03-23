@@ -1,5 +1,5 @@
 /*
- * Title: Dual DC Motor Control with Encoder
+ * Title: Dual DC Motor Control with Encoder and ax12 servo
  * Author: Khairul Izwan 22-03-2020
  * Description: Controlling Dual DC Motor with Encoder using
  * 10Amp 7V-30V DC Motor Driver Shield for Arduino (2 Channels)
@@ -18,6 +18,16 @@
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Float32.h>
 #include <std_msgs/Bool.h>
+
+#include "Arduino.h"
+#include "AX12A.h"
+
+#define DirectionPin   (10u)
+#define BaudRate      (1000000ul)
+#define ID1       (10u)
+#define ID2        (9u)
+#define ID3        (8u)
+#define ID4        (7u)
 
 //Motor Pin Assignment
 int DIRA = 4;
