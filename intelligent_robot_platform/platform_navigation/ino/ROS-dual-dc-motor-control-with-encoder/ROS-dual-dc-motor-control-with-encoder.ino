@@ -131,8 +131,8 @@ void messageCb_cmd_vel(const geometry_msgs::Twist &msg)
   rightDutyCycle = (255 * rightVelocity) / 0.22;
 
 //  Ensure DutyCycle is between minimum and maximum
-  leftPWM = clipPWM(abs(leftDutyCycle), 30, 200);
-  rightPWM = clipPWM(abs(rightDutyCycle), 30, 200);
+  leftPWM = clipPWM(abs(leftDutyCycle), 20, 200);
+  rightPWM = clipPWM(abs(rightDutyCycle), 20, 200);
 
 //  motor directection helper function
   motorDirection();
@@ -261,8 +261,8 @@ void setup()
 //put your main code here, to run repeatedly:
 void loop()
 {
-  encLeft.data = leftPWM;
-  encRight.data = rightPWM;
+  encLeft.data = COUNTER_A;
+  encRight.data = COUNTER_B;
 
   pub_encLeft.publish(&encLeft);
   pub_encRight.publish(&encRight);

@@ -17,11 +17,20 @@
 #include "std_msgs/String.h"
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Float32.h>
+#include <std_msgs/Int32.h>
 #include <std_msgs/Bool.h>
 
+/*
+ * Add changes here!
+ * AX-12
+ */
 #include "Arduino.h"
 #include "AX12A.h"
 
+/*
+ * Add changes here!
+ * AX-12
+ */
 #define DirectionPin   (10u)
 #define BaudRate      (1000000ul)
 #define ID1       (10u)
@@ -36,7 +45,7 @@ int DIRB = 12;
 int PWMB = 10;
 
 //Speed
-int SPD = 0;
+int SPD = 300;
 
 //Encoder Pins Definition
 //Using an interrupt pins :: 2, 3, 18, 19, 20, 21 
@@ -139,10 +148,10 @@ void messageCb_cmd_vel(const geometry_msgs::Twist &msg)
 //  Step 2: Convert wheel speeds into duty cycles
   leftDutyCycle = (255 * leftVelocity) / 0.22;
   rightDutyCycle = (255 * rightVelocity) / 0.22;
-
-//  Ensure DutyCycle is between minimum and maximum
-  leftPWM = clipPWM(abs(leftDutyCycle), 30, 200);
-  rightPWM = clipPWM(abs(rightDutyCycle), 30, 200);
+  
+//  Step3: Ensure DutyCycle is between minimum and maximum
+  leftPWM = clipPWM(abs(leftDutyCycle), 20, 200);
+  rightPWM = clipPWM(abs(rightDutyCycle), 20, 200);
 
 //  motor directection helper function
   motorDirection();
@@ -223,6 +232,47 @@ void messageCb_reset_encRight(const std_msgs::Bool &msg)
   }
 }
 
+//AX-12 motorDirection helper function
+void messageCb_ax12_control(const std_msgs::Int32 &msg)
+{
+  if (msg.data == 1)
+  {
+    ax12a.turn(ID1, LEFT, SPD);
+    ax12a.turn(ID2, LEFT, SPD);
+    ax12a.turn(ID3, RIGHT, SPD);
+    ax12a.turn(ID4, RIGHT, SPD);
+    
+    ax12a.ledStatus(ID1, ON);
+    ax12a.ledStatus(ID2, ON);
+    ax12a.ledStatus(ID3, ON);
+    ax12a.ledStatus(ID4, ON);
+  }
+  else if (msg.data == 2)
+  {
+    ax12a.turn(ID1, RIGHT, SPD);
+    ax12a.turn(ID2, RIGHT, SPD);
+    ax12a.turn(ID3, LEFT, SPD);
+    ax12a.turn(ID4, LEFT, SPD);
+    
+    ax12a.ledStatus(ID1, ON);
+    ax12a.ledStatus(ID2, ON);
+    ax12a.ledStatus(ID3, ON);
+    ax12a.ledStatus(ID4, ON);
+  }
+  else
+  {
+    ax12a.turn(ID1, LEFT, 0);
+    ax12a.turn(ID2, LEFT, 0);
+    ax12a.turn(ID3, RIGHT, 0);
+    ax12a.turn(ID4, RIGHT, 0);
+  
+    ax12a.ledStatus(ID1, OFF);
+    ax12a.ledStatus(ID2, OFF);
+    ax12a.ledStatus(ID3, OFF);
+    ax12a.ledStatus(ID4, OFF);
+  }
+}
+
 //Set up the ros node (publisher and subscriber)
 std_msgs::Float32 encLeft;
 std_msgs::Float32 encRight;
@@ -232,6 +282,7 @@ ros::Publisher pub_encRight("val_encRight", &encRight);
 ros::Subscriber<geometry_msgs::Twist> sub_cmd_vel("/cmd_vel", messageCb_cmd_vel);
 ros::Subscriber<std_msgs::Bool> sub_reset_encLeft("/reset_encLeft", messageCb_reset_encLeft);
 ros::Subscriber<std_msgs::Bool> sub_reset_encRight("/reset_encRight", messageCb_reset_encRight);
+//ros::Subscriber<std_msgs::Int32> sub_ax12_control("/cmd_servo_dir", messageCb_ax12_control);
 
 ros::NodeHandle nh;
 
@@ -256,6 +307,13 @@ void setup()
 	pinMode(DIRB, OUTPUT);
 	pinMode(PWMB, OUTPUT);
 
+  ax12a.begin(BaudRate, DirectionPin, &Serial1);
+  
+  ax12a.setEndless(ID1, ON);
+  ax12a.setEndless(ID2, ON);
+  ax12a.setEndless(ID3, ON);
+  ax12a.setEndless(ID4, ON);
+
 //  Initiate ROS-node
   nh.initNode();
 
@@ -266,13 +324,15 @@ void setup()
 
   nh.subscribe(sub_reset_encLeft);
   nh.subscribe(sub_reset_encRight);
+
+//  nh.subscribe(sub_ax12_control);
 }
 
 //put your main code here, to run repeatedly:
 void loop()
 {
-  encLeft.data = leftPWM;
-  encRight.data = rightPWM;
+  encLeft.data = COUNTER_A;
+  encRight.data = COUNTER_B;
 
   pub_encLeft.publish(&encLeft);
   pub_encRight.publish(&encRight);

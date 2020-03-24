@@ -1,12 +1,20 @@
 <launch>
 
 	<node	pkg="rosserial_arduino" 
-		name="motor_control" 
+		name="dc_motor_control" 
 		type="serial_node.py" 
 		output="screen">
 
 		<param name="port" value="/dev/ttyUSB0" />
 		<param name="baud" value="57600" />
-  	</node>
+	</node>
 
+	<node	pkg="rosserial_arduino" 
+		name="ax12_motor_control" 
+		type="serial_node.py" 
+		output="screen">
+
+		<param name="port" value="/dev/ttyUSB1" />
+		<param name="baud" value="57600" />
+	</node>
 </launch>
