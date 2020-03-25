@@ -67,7 +67,7 @@ class TankFaceDetector:
 
 		# loop over the face bounding boxes and draw them
 		for self.rect in self.rects:
-			cv2.rectangle(self.frameClone, (self.rect[0], self.rect[1]), (self.rect[2], self.rect[3]), color_roi, 2)
+			cv2.rectangle(self.frameClone, (self.rect[0], self.rect[1]), (self.rect[2], self.rect[3]), (0, 255, 0), 2)
 
 			#self.roi=RegionOfInterest()
 			#self.roi.x_offset=self.rect[0]
@@ -143,24 +143,24 @@ class TankFaceDetector:
 
 			cv2.circle(self.frameClone, (self.center_x_roi, self.center_y_roi), 1, (0, 0, 255), 2) 
 
-		"""Add changes here!"""
-		# Start coordinate, here (0, 0) 
-		# represents the top left corner of image 
-		start_point = (self.center_W, 0) 
-		  
-		# End coordinate, here (250, 250) 
-		# represents the bottom right corner of image 
-		end_point = (self.center_W, self.H) 
-		  
-		# Green color in BGR 
-		color = (0, 255, 0) 
-		  
-		# Line thickness of 9 px 
-		thickness = 2
-		  
-		# Using cv2.line() method 
-		# Draw a diagonal green line with thickness of 9 px 
-		cv2.line(self.frameClone, start_point, end_point, color, thickness) 
+#			"""Add changes here!"""
+#			# Start coordinate, here (0, 0) 
+#			# represents the top left corner of image 
+#			start_point = (self.center_W, 0) 
+#			  
+#			# End coordinate, here (250, 250) 
+#			# represents the bottom right corner of image 
+#			end_point = (self.center_W, self.H) 
+#			  
+#			# Green color in BGR 
+#			color = (0, 255, 0) 
+#			  
+#			# Line thickness of 9 px 
+#			thickness = 2
+#			  
+#			# Using cv2.line() method 
+#			# Draw a diagonal green line with thickness of 9 px 
+#			cv2.line(self.frameClone, start_point, end_point, color, thickness) 
 
 		cv2.imshow("Face Detector", self.frameClone)
 		cv2.waitKey(1)
